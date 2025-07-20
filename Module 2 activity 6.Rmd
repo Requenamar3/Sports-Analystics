@@ -1,0 +1,477 @@
+---
+title: "Intro to Linear Regression: First Base hitting stats"
+output: html_notebook
+---
+## 🧠 Big Picture: What Is This Notebook About?
+
+You're building **regression models** to:
+
+* Understand what **statistical performance metrics** best explain salary differences
+* Predict future **player salaries**
+* Identify which features (like RBI, OBP) matter most
+
+Your dependent (target) variable is:
+
+> 🎯 `Payroll.Salary2023` (the salary you want to predict)
+
+Your independent (explanatory) variables are:
+
+> 🧮 Player stats: `RBI`, `AVG`, `OBP`, `OPS`, etc.
+
+
+
+
+```{r}
+# Read in data
+firstbase = read.csv("firstbasestats.csv")
+str(firstbase)
+```
+ 
+```{r}
+summary(firstbase)
+```
+### 📈 2. Simple Linear Regression: RBI ➝ Salary
+
+```{r}
+# 📌 Create a simple linear regression model
+# The linear model predicts 2023 payroll salary based on the player's RBI (Runs Batted In)
+#x=RBI
+#y= payroll.salary2023
+
+model1 = lm(Payroll.Salary2023 ~ RBI, data = firstbase) #data
+
+# 📊 Display a summary of the model
+# This shows coefficients, p-values, R-squared, residuals, and overall model significance
+summary(model1)
+
+```
+Since  the absolute value of t is greater than 2, the rbi independent variable is significant at a 5% significance level. you may use P value as well , in this case p<=0.5
+
+**Either |t| >=2 or p<0.05 the corresponding feature is significant at a 5% significance level
+
+For each additional RBI a 1st Base player gets $157088 more
+RBI espains 36.57 % of the model
+
+## Model Summary
+
+**Dependent Variable**: Payroll.Salary2023  
+**Independent Variable**: RBI  
+**Sample Size**: 22 observations (21 degrees of freedom)
+
+## Key Findings
+
+**Relationship**: There is a statistically significant positive relationship between RBI and salary. For every additional RBI, salary increases by approximately $157,088.
+
+**Statistical Significance**: The RBI coefficient has a p-value of 0.00133 (highly significant at p < 0.01), indicating this relationship is very unlikely to be due to chance.
+
+**Model Fit**: 
+- R-squared = 0.3945 (39.45% of salary variation is explained by RBI)
+- Adjusted R-squared = 0.3657 (adjusts for sample size)
+
+**Intercept**: The model predicts a base salary of -$236,744 when RBI = 0, though this negative intercept likely reflects the model's limitations at extreme values rather than a meaningful baseline.
+
+## Interpretation
+
+The analysis suggests that RBI performance is a strong predictor of salary in this dataset. Players with higher RBI totals tend to earn significantly more, with each additional RBI associated with about $157,000 in additional salary. However, RBI explains less than 40% of salary variation, indicating other factors (position, experience, market conditions, etc.) also play important roles in salary determination.
+
+### 🧠 What It Does:
+
+* `lm()` fits a **linear regression** model: `Y ~ X` format → **Salary is the dependent variable**, RBI is the predictor.
+* `summary()` gives you:
+
+  * **Intercept and slope (coefficient for RBI)**
+  * **R-squared** (how much variance in salary is explained by RBI)
+  * **p-value** for testing whether RBI significantly predicts salary
+  * **Residuals** (error estimates)
+
+🧠 You’re asking: “Can RBI (runs batted in) alone predict salary?”
+
+### 📊 Key Output:
+
+* **R² = 0.39** → RBI explains 39% of salary variation
+* **p = 0.0013** → statistically significant
+* Slope: Each RBI adds \~\$157K in predicted salary
+
+```{r}
+# 🔍 View residuals from model1
+# These are the differences between the actual salaries and the predicted salaries based on RBI alone.
+model1$residuals
+```
+ 
+💡 **SSE** (Sum of Squared Errors) = 8.91 × 10¹⁴
+Lower SSE = better fit.
+
+### 🧠 What are residuals?
+
+* Residual = Actual Salary − Predicted Salary
+* Each value shows **how far off** the model’s prediction was for a player.
+* Positive residual → actual salary is **higher** than predicted.
+* Negative residual → actual salary is **lower** than predicted.
+
+### 💡 Use cases:
+
+* Plotting residuals helps detect patterns, non-linearity, or outliers.
+* Analyzing residuals is essential for checking model assumptions (e.g., homoscedasticity).
+
+```{r}
+# 🧮 Calculate the Sum of Squared Errors (SSE)
+# This measures the total squared difference between actual and predicted salary values.
+# Lower SSE indicates a better fit (less error in prediction).
+SSE = sum(model1$residuals^2)
+SSE
+```
+💡 **SSE** (Sum of Squared Errors) = 8.91 × 10¹⁴
+Lower SSE = better fit.
+
+### 📊 What SSE tells you:
+
+* **SSE** is a measure of total error between actual and predicted salary values.
+* A **lower SSE** means the model is doing a better job at predicting salaries.
+* You can use this to compare models:
+
+  * If `model2` (with AVG + RBI) has a lower SSE than `model1`, then it’s a better fit.
+
+### 📌 Explanation:
+
+* `model1$residuals` are the differences between actual salaries and the predicted salaries from the model.
+* Squaring each residual avoids negative cancellation and emphasizes larger errors.
+* `sum(...)` adds up all the squared errors → total error in the model's predictions.
+
+---
+
+### 🧪 3. Multiple Regression: AVG + RBI ➝ Salary
+
+```{r}
+# 📌 Build a multiple linear regression model
+# This model predicts 2023 Payroll Salary based on two predictors:
+# 1. Batting Average (AVG)
+# 2. Runs Batted In (RBI)
+model2 = lm(Payroll.Salary2023 ~ AVG + RBI, data = firstbase)
+summary(model2)
+
+```
+AVG is not significant at a 5% significance level
+RBI is significant at a 5% significance level
+Adjusted R squared went up!
+The model is significant at 1% significance level 
+
+
+
+✅ Adding AVG increases R² to 0.47 (small improvement)
+⚠️ AVG has a p-value \~0.098 → weak evidence it helps
+🔻 SSE drops to 7.75 × 10¹⁴ → less prediction error
+
+### 🧠 Why use multiple predictors?
+
+Adding `AVG` alongside `RBI` allows the model to better account for differences in **player performance** that affect salary. If `AVG` explains additional variation not captured by `RBI`, the model becomes more accurate.
+
+
+```{r}
+# Sum of Squared Errors
+SSE = sum(model2$residuals^2)
+SSE
+```
+
+### 🏋️‍♂️ 4. Full Model: All Stats ➝ Salary
+
+
+```{r}
+# 📌 Build a multiple linear regression model with 5 predictors
+# Predict 2023 Payroll Salary using:
+# HR  = Home Runs
+# RBI = Runs Batted In
+# AVG = Batting Average
+# OBP = On-Base Percentage
+# OPS = On-base Plus Slugging
+model3 = lm(Payroll.Salary2023 ~ HR + RBI + AVG + OBP + OPS, data = firstbase)
+
+# 📊 View the model summary
+# Includes coefficient estimates, significance (p-values), R-squared, and more
+summary(model3)
+```
+🧠 You're checking if a full model gives better predictions.
+
+✅ R² increases to 0.58
+⚠️ But: None of the individual variables are statistically significant
+❗ This could mean **multicollinearity** (too many related variables)
+
+### 🧠 Why include these variables?
+
+Each added variable explains a different aspect of offensive performance:
+
+* **HR**: Power hitting
+* **RBI**: Run production
+* **AVG**: Consistency in hitting
+* **OBP**: Ability to get on base
+* **OPS**: Combination of power and on-base skill
+
+Including more features *can* improve model accuracy — **but only if they add unique, non-redundant information.**
+
+---
+
+### 🚨 Caution:
+
+You may encounter **multicollinearity**, especially with `OBP`, `AVG`, and `OPS`, since they’re mathematically related.
+
+Want help checking for multicollinearity using `vif()` from the `car` package or comparing models using adjusted R² and SSE?
+
+### 🧠 Conclusion
+- The model explains about 58% of salary variance, which is okay.
+
+- No individual predictor is statistically significant, possibly due to overlapping information (like OBP and OPS)
+
+- Consider simplifying your model (e.g., keep OPS only, drop OBP and AVG), or trying regularization methods (like Ridge or Lasso).
+
+
+```{r}
+# Sum of Squared Errors
+SSE = sum(model3$residuals^2)
+SSE
+```
+---
+
+### 🧹 5. Model Refinement: Remove HR
+
+
+```{r}
+# Remove HR
+model4 = lm(Payroll.Salary2023 ~ RBI + AVG + OBP+OPS, data=firstbase)
+summary(model4)
+```
+
+Small improvement in adjusted R² → You’re simplifying to make the model easier to interpret without sacrificing performance.
+
+```{r}
+# 🧹 Remove the first three columns from the 'firstbase' dataset
+# Typically used to drop non-numeric or non-predictive columns like Player Name, Position, or Team
+firstbase <- firstbase[, -(1:3)]
+
+```
+
+### 🧠 Why do this?
+
+* In many regression tasks, columns like **player name, position, or team** (which are often in the first 3 columns) are **not useful for numeric prediction**.
+* Removing them helps focus the model on meaningful **numeric variables** like AVG, RBI, HR, etc.
+
+
+```{r}
+# 🔗 Calculate the Pearson correlation between RBI and Salary
+# This measures the strength and direction of the linear relationship between RBI and 2023 salary
+cor(firstbase$RBI, firstbase$Payroll.Salary2023)
+
+```
+
+### 📊 What does this tell you?
+
+* **The output will be a number between -1 and 1:**
+
+  * **+1** → Perfect positive correlation
+  * **0** → No linear correlation
+  * **-1** → Perfect negative correlation
+
+
+### 🧠 Interpretation:
+
+* If the result is **around 0.6 or higher**, it means players with more RBIs tend to earn **higher salaries**.
+* If it's lower (e.g., < 0.3), then **RBI alone doesn't strongly explain salary**.
+
+
+```{r}
+# 🔗 Calculate the Pearson correlation between Batting Average (AVG) and On-Base Percentage (OBP)
+# This shows how closely related a player's batting average is to their on-base percentage
+cor(firstbase$AVG, firstbase$OBP)
+
+```
+
+### 🧠 Why this matters:
+
+* **AVG and OBP** are both measures of hitting performance.
+
+  * **AVG** = Hits ÷ At Bats
+  * **OBP** = (Hits + Walks + Hit by Pitch) ÷ Plate Appearances
+* Since **AVG is part of OBP**, you'd expect a **strong positive correlation**.
+
+### 💡 How to interpret the result:
+
+* If the result is **close to 1** (like 0.85–0.95), that means **high AVG usually means high OBP**, but not always (walks and hit-by-pitch also count in OBP).
+* A **very high correlation** could suggest **redundancy**—so be cautious about **multicollinearity** if you use both in a regression model.
+
+### 🧪 6. Explore Correlations
+
+```{r}
+# 📊 Calculate the correlation matrix for all numeric variables in the 'firstbase' dataset
+cor(firstbase)
+
+```
+💡 You discovered:
+
+* OBP and AVG = **0.80** → very similar
+* OPS and SLG = **0.97** → almost redundant
+* WAR and Salary = **0.81** → strong predictor
+
+✅ This explains why too many similar stats can **hurt the model's clarity**.
+
+### 🧠 What this does:
+
+* This creates a **correlation matrix**, showing **pairwise Pearson correlations** between **all numeric columns**.
+* Each cell in the table shows the **strength and direction of the relationship** between two variables.
+
+  * Values close to **+1** = strong positive relationship
+  * Values close to **-1** = strong negative relationship
+  * Values near **0** = little to no linear relationship
+
+### 📌 Why this is useful:
+
+* Helps identify:
+
+  * **Strong predictors** for salary (look at correlations with `Payroll.Salary2023`)
+  * **Multicollinearity** (variables that are highly correlated with each other—like `AVG` and `OBP`, or `OBP` and `OPS`)
+* You can use this to decide:
+
+  * Which variables to keep in a model
+  * Which ones may be redundant and could be removed to improve model performance
+
+```{r}
+round(cor(firstbase), 2)  # Round to 2 decimal places
+```
+
+```{r}
+#Removing AVG
+model5 = lm(Payroll.Salary2023 ~ RBI + OBP+OPS, data=firstbase)
+summary(model5)
+```
+
+### 📌 What Your Model Tells Us
+
+You created a regression model to predict **2023 player salary** using **RBI, OBP, and OPS**.
+
+#### ✅ **Overall Model Quality**
+
+* **R-squared = 0.5709**: The model explains **57.1%** of the variation in salaries.
+* **Adjusted R-squared = 0.5031**: Even after adjusting for 3 variables, it still explains about **50%**, which is solid.
+* **F-statistic p-value = 0.0009**: The model as a whole is **statistically significant** — it’s doing a good job capturing salary trends.
+
+#### ❌ **Individual Variables**
+
+* None of the predictors (**RBI, OBP, or OPS**) are statistically significant on their own (all p-values > 0.05).
+* This is likely due to **multicollinearity**: OBP and OPS are highly related, making it hard to tell which one actually affects salary.
+* Coefficients might look large (e.g. OBP = 8.2 million), but they are **not reliable** because of this overlap.
+
+#### ⚠️ **Prediction Error**
+
+* **Residual Standard Error = \$5.77M**: Your model’s salary predictions are off by about **\$5.77 million** on average.
+
+### 🎯 7. Build the Best Simple Model (model6)
+
+```{r}
+model6 = lm(Payroll.Salary2023 ~ RBI + OBP, data=firstbase)
+summary(model6)
+```
+This is your **best clean model**.
+
+* OBP: Significant (p = 0.009)
+* RBI: Nearly significant (p = 0.07)
+* R² = 0.57 → good explanatory power
+
+### ✅ **Model Overview**
+
+You’re predicting player salary using:
+
+```r
+lm(Payroll.Salary2023 ~ RBI + OBP, data = firstbase)
+```
+
+---
+
+### 📊 **Model Quality**
+
+| Metric                      | Value              | Interpretation                                                     |
+| --------------------------- | ------------------ | ------------------------------------------------------------------ |
+| **R-squared**               | 0.5703             | Explains 57.03% of salary variation. Comparable to earlier models. |
+| **Adjusted R-squared**      | 0.5273             | This is your **highest adjusted R²** so far – great sign! ✅        |
+| **Residual Std. Error**     | 5,625,000          | Smallest prediction error yet – better precision. ✅                |
+| **F-statistic (p < 0.001)** | 13.27 (p = 0.0002) | The model is **highly significant overall**. ✅                     |
+
+---
+
+### 🔍 **Coefficient Significance**
+
+| Variable      | Estimate | p-value     | Meaning                                                          |
+| ------------- | -------- | ----------- | ---------------------------------------------------------------- |
+| **Intercept** | -2.89M   | 0.0069 \*\* | Statistically significant baseline.                              |
+| **RBI**       | \$84,278 | 0.0736 •    | **Marginally significant** (at 10% level). Adds \~\$84k per RBI. |
+| **OBP**       | \$95.5M  | 0.0097 \*\* | **Strongly significant**. High OBP means higher salary. ✅        |
+
+---
+
+### 🧠 Interpretation
+
+* **OBP** is a **very strong predictor** of salary. Teams value players who consistently get on base.
+* **RBI** is borderline significant — still useful but not as strong.
+* Removing OPS helped **remove multicollinearity** and revealed the true importance of OBP.
+
+---
+
+### 📈 Final Takeaway
+
+This model is:
+
+* **Simple**
+* **Statistically solid**
+* **Interpretably strong**
+
+You're now explaining over **52% of salary variation** with just **two clear stats** (OBP and RBI), with OBP being the key driver.
+
+
+### 🧪 8. Test the Model on New Data
+```{r}
+# 📂 Load the test dataset containing first base player stats
+firstbaseTest = read.csv("firstbasestats_test.csv")
+
+# 🔍 Display the structure of the dataset:
+# This shows the number of observations, variables, and each column's data type (e.g., int, chr, num).
+str(firstbaseTest)
+
+```
+
+
+```{r}
+# 📌 Use the trained regression model (model6) to predict salaries on the test dataset
+# 'newdata = firstbaseTest' tells R to use the test data for prediction
+predictTest = predict(model6, newdata = firstbaseTest)
+
+# 📤 Output the predicted salaries for each player in the test set
+# This gives you the model's estimation of 'Payroll.Salary2023' based on the features in firstbaseTest
+predictTest
+
+```
+
+
+### ✅ Quick Explanation:
+
+* `model6`: your final trained linear model (likely with multiple predictors like AVG, HR, OBP, etc.)
+* `predict()`: uses the model to estimate the target variable (`Payroll.Salary2023`)
+* `newdata = firstbaseTest`: the unseen test data with the same structure as the training data
+
+```{r}
+# 📉 Calculate the Sum of Squared Errors (SSE)
+# This measures the total squared difference between actual and predicted salaries in the test set
+SSE = sum((firstbaseTest$Payroll.Salary2023 - predictTest)^2)
+
+# 📊 Calculate the Total Sum of Squares (SST)
+# This measures the total variance in the actual salaries of the test set
+# NOTE: The mean is taken from the *training set* to keep consistency in evaluation
+SST = sum((firstbaseTest$Payroll.Salary2023 - mean(firstbase$Payroll.Salary2023))^2)
+
+# 📈 Compute the R-squared value on the test data
+# R-squared = 1 - (SSE/SST), indicates how well the model generalizes to new data
+1 - SSE/SST
+```
+
+
+### 🧠 What does this tell you?
+
+* A value close to **1** means your model is doing well predicting unseen data.
+* A value near **0** means it's no better than guessing the mean.
+* A **negative** R-squared means your model is worse than just predicting the mean for every player.
+

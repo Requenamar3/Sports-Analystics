@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+**Sports analytics** exercise based on *Moneyball*—the story of how the Oakland A’s used data to build a winning baseball team on a tight budget. Let's break this down in simple terms and explain the **purpose** of each code section from Videos 2 and 3.
+
+
+## 🎯 **Overall Purpose of the Exercise**
+
+This project is teaching you how to:
+
+1. **Use historical baseball data** to understand what actually contributes to winning games.
+2. **Build a data-driven strategy** to pick players who are undervalued but effective.
+3. **Apply linear regression** to figure out what statistics (like OBP or SLG) truly matter in predicting success (runs scored, runs allowed, and wins).
+
+This mirrors what the Oakland A’s did in real life: **use statistics to find hidden value** in players that big-budget teams ignored.
+
+---
+
+###  **Load and Explore the Dataset**
+# VIDEO 2
+
+https://ocw.mit.edu/courses/15-071-the-analytics-edge-spring-2017/pages/linear-regression/moneyball-the-power-of-sports-analytics/video-2-making-it-to-the-playoffs/
+
+```{r}
+baseball = read.csv(here("MDC CLASSES/Sports Analytics/baseball.csv"))
+str(baseball)
+
+```
+

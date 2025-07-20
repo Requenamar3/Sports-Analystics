@@ -1,0 +1,177 @@
+---
+title: 'Module 3 : Activities 7 and 8'
+output:
+  html_notebook: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r}
+# VIDEO 2
+
+
+# Read in data
+baseball = read.csv("baseball.csv")
+str(baseball)
+```
+```{r}
+# Create a new dataset containing only seasons before 2002 (Moneyball era)
+moneyball = subset(baseball, Year < 2002)
+
+# Check the structure of the Moneyball subset
+str(moneyball)
+```
+
+```{r}
+# Calculate Run Differential (RD = Runs Scored - Runs Allowed)
+# Teams that score more than they allow tend to win more games
+moneyball$RD = moneyball$RS - moneyball$RA
+
+# Confirm the new variable was added correctly
+str(moneyball)
+```
+RD = **Runs Scored - Runs Allowed**
+If a team scores more than it allows, it's more likely to win.
+
+```{r}
+# Create a scatterplot to see if there's a relationship between RD and Wins
+# A straight-line trend would suggest we can use linear regression
+plot(moneyball$RD, moneyball$W)
+
+```
+
+```{r}
+# Build a linear regression model to predict Wins using Run Differential
+WinsReg = lm(W ~ RD, data=moneyball)
+
+# Show the results of the regression
+summary(WinsReg)
+```
+We are building a **linear regression model**:
+
+* Inputs: Run Differential (RD)
+* Output: Wins (W)
+
+Model says:
+
+> For every **1 extra run of RD**, a team wins **0.106 more games** on average.
+
+📈 R-squared = 0.88 → Very strong model (88% of wins can be explained by RD).
+
+ *Goal*: Prove that RD is a powerful predictor of wins.
+
+###If a baseball team scores 763 runs and allows 614 runs, how many games do we expect the team to win?
+
+Using the linear regression model constructed during the lecture, enter the number of games we expect the team to win:
+
+```{r}
+rs = 763
+ra = 614
+
+rd = rs - ra
+rd
+```
+
+```{r}
+wins =80.881 + 0.105766 * rd
+wins
+```
+
+## According to our model if the A's score 763 runs and allow 614 runs,  would win around 96 or 97 games
+
+---
+
+```{r}
+# Video 3
+# Confirm the structure of the data again (double-check)
+str(moneyball)
+```
+
+```{r}
+# Build a regression model to predict Runs Scored (RS)
+# Based on three batting stats: OBP, SLG, and BA
+RunsReg = lm(RS ~ OBP + SLG + BA, data=moneyball)
+
+# View model summary to check which variables are most important
+summary(RunsReg)
+
+```
+**Insights**:
+
+* **OBP (On Base Percentage)** and **SLG (Slugging %)** are *very strong predictors* of scoring runs.
+* Surprisingly, **BA (Batting Average)** adds little value and even has a slightly negative effect.
+
+```{r}
+# Build a simpler regression model to predict Runs Scored
+# This time removing BA since it wasn’t helpful
+RunsReg = lm(RS ~ OBP + SLG, data=moneyball)
+
+# View updated model summary
+summary(RunsReg)
+```
+ **Conclusion**:
+This simpler model still explains **93% of the variation in Runs Scored**.
+This supports the Moneyball idea: **Focus on OBP and SLG** when picking players, not BA.
+---
+
+```{r}
+# Build a regression model to predict Runs Allowed (RA)
+# Based on the opponent's OBP and SLG (OOBP and OSLG)
+RunsAllowedReg = lm(RA ~ OOBP + OSLG, data=moneyball)
+
+# View the model summary
+summary(RunsAllowedReg)
+```
+
+ **What we learn**:
+
+* Teams allow more runs when opponents have higher OBP and SLG.
+* You want pitchers and defenders who **limit how often opponents get on base or hit for power**.
+
+---
+
+
+# **In_Class _Activity8**
+
+Exercise 1
+If a baseball team’s OBP is 0.361 and  SLG is 0.409, how many runs do we expect the team to score?
+Using the linear regression model constructed during the lecture (the one that uses OBP and  SLG as independent variables), find the number of runs we expect the team to score:
+
+```{r}
+# Build a regression model to predict Runs Scored
+RunsReg = lm(RS ~ OBP + SLG, data=moneyball)
+
+# View updated model summary
+summary(RunsReg)
+```
+
+```{r}
+runs_scored =-804.63 +2737.77*(0.361)+1584.91*(0.409)
+runs_scored
+```
+We expect the team to score between 831 and 831 runs
+
+---
+
+ Exercise 2
+
+
+If a baseball team’s opponents OBP (OOBP) is 0.267 and opponents SLG (OSLG) is 0.392, how many runs do we expect the team to allow?
+Using the linear regression model discussed during the lecture (the one on the last slide of the previous video), find the number of runs we expect the team to allow. 
+
+```{r}
+# Build a regression model to predict Runs Allowed (RA)
+# Based on the opponent's OBP and SLG (OOBP and OSLG)
+RunsAllowedReg = lm(RA ~ OOBP + OSLG, data=moneyball)
+
+# View the model summary
+summary(RunsAllowedReg)
+```
+
+```{r}
+runs_allowed =-837.38 +2913.60 * (0.267)+1514.29* (0.392)
+runs_allowed
+```

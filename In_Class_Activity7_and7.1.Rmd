@@ -1,0 +1,125 @@
+
+---
+title: "R Notebook" 
+output: html_document
+---
+
+**Sports analytics** exercise based on *Moneyball*—the story of how the Oakland A’s used data to build a winning baseball team on a tight budget. Let's break this down in simple terms and explain the **purpose** of each code section from Videos 2 and 3.
+
+
+## 🎯 **Overall Purpose of the Exercise**
+
+This project is teaching you how to:
+
+1. **Use historical baseball data** to understand what actually contributes to winning games.
+2. **Build a data-driven strategy** to pick players who are undervalued but effective.
+3. **Apply linear regression** to figure out what statistics (like OBP or SLG) truly matter in predicting success (runs scored, runs allowed, and wins).
+
+This mirrors what the Oakland A’s did in real life: **use statistics to find hidden value** in players that big-budget teams ignored.
+
+---
+
+###  **Load and Explore the Dataset**
+# VIDEO 2
+
+https://ocw.mit.edu/courses/15-071-the-analytics-edge-spring-2017/pages/linear-regression/moneyball-the-power-of-sports-analytics/video-2-making-it-to-the-playoffs/
+
+```{r}
+baseball = read.csv("baseball.csv")
+str(baseball)
+```
+You're loading a dataset of MLB team stats from different years. This includes:
+
+* **Runs Scored (RS)** and **Runs Allowed (RA)**
+* **On Base Percentage (OBP)** and **Slugging Percentage (SLG)**
+* **Wins (W)** and whether they made the **Playoffs**
+
+*Goal*: Understand what data we have.
+
+---
+
+### 📌 **Focus on Moneyball Years**
+
+```{r}
+# Create a new dataset containing only seasons before 2002 (Moneyball era)
+moneyball = subset(baseball, Year < 2002)
+
+# Check the structure of the Moneyball subset
+str(moneyball)
+```
+
+ You’re narrowing it down to the **Moneyball era** (before 2002), because that’s when Billy Beane used analytics to change how players were selected.
+
+*Goal*: Analyze only the data that was available at the time the A’s were making decisions.
+
+---
+###  **Create Run Differential (RD)**
+
+```{r}
+# Calculate Run Differential (RD = Runs Scored - Runs Allowed)
+# Teams that score more than they allow tend to win more games
+moneyball$RD = moneyball$RS - moneyball$RA
+
+# Confirm the new variable was added correctly
+str(moneyball)
+```
+
+Narrowing it down to the **Moneyball era** (before 2002), because that’s when Billy Beane used analytics to change how players were selected.
+
+*Goal*: Analyze only the data that was available at the time the A’s were making decisions.
+
+###  **Create Run Differential (RD)**
+
+```{r}
+# Calculate Run Differential (RD = Runs Scored - Runs Allowed)
+# Teams that score more than they allow tend to win more games
+moneyball$RD = moneyball$RS - moneyball$RA
+
+# Confirm the new variable was added correctly
+str(moneyball)
+
+```
+
+RD = **Runs Scored - Runs Allowed**
+If a team scores more than it allows, it's more likely to win.
+
+*Goal*: Create a new variable that might help explain team success (Wins).
+
+---
+
+###  **Check Relationship: Run Differential vs Wins**
+
+```{r}
+# Create a scatterplot to see if there's a relationship between RD and Wins
+# A straight-line trend would suggest we can use linear regression
+plot(moneyball$RD, moneyball$W)
+
+```
+creating a scatterplot to see if teams that score more than they allow also win more games.
+
+ *Goal*: Visualize whether there’s a **linear relationship** (straight-line pattern) between RD and Wins.
+
+### **Build First Model: Predict Wins from RD**
+
+```{r}
+# Build a linear regression model to predict Wins using Run Differential
+WinsReg = lm(W ~ RD, data=moneyball)
+
+# Show the results of the regression
+summary(WinsReg)
+
+```
+We are building a **linear regression model**:
+
+* Inputs: Run Differential (RD)
+* Output: Wins (W)
+
+Model says:
+
+> For every **1 extra run of RD**, a team wins **0.106 more games** on average.
+
+📈 R-squared = 0.88 → Very strong model (88% of wins can be explained by RD).
+
+ *Goal*: Prove that RD is a powerful predictor of wins.
+
+

@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+2-3
+
+```
+
+```{r}
+# Division
+2/3
+```
+
+```{r}
+# Exponentiation
+2^3 
+```
+```{r}
+# Square root
+sqrt(2)
+```
+
+```{r}
+# Logarithms
+log(2)
+```
+```{r}
+#Question_1: Compute the log base 5 of 10 and the log of 10.
+# Log base 5 of 10
+log_base5_of_10 <- log(10, base = 5)
+log_base5_of_10
+```
+
+```{r}
+# Log base 10 of 10 (common log)
+log_base10_of_10 <- log10(10)
+log_base10_of_10
+```
+###Computing some offensive metrics in Baseball
+
+```{r}
+#Batting Average=(No. of Hits)/(No. of At Bats)
+#What is the batting average of a player that bats 29 hits in 112 at bats?
+BA=(29)/(112)
+BA
+```
+
+```{r}
+Batting_Average=round(BA,digits = 3)
+Batting_Average
+```
+
+```{r}
+#Question_2:What is the batting average of a player that bats 42 hits in 212 at bats?
+
+hits <- 42
+at_bats <- 212
+
+batting_average <- hits / at_bats
+
+# Print result rounded to 3 decimal places
+cat("Batting Average =", round(batting_average, 3), "\n")
+
+```
+```{r}
+# Define the stats
+AB <- 515   # At Bats
+H  <- 172   # Hits
+BB <- 84    # Walks (Bases on Balls)
+HBP <- 5    # Hit by Pitch
+SF <- 6     # Sacrifice Flies
+
+# Calculate On Base Percentage (OBP)
+OBP <- (H + BB + HBP) / (AB + BB + HBP + SF)
+
+# Print result rounded to 3 decimals
+cat("On Base Percentage (OBP) =", round(OBP, 3), "\n")
+
+```
+# Question_3:Compute the OBP for a player with the following general stats:
+AB=565, H=156, BB=65, HBP=3, SF=7
+
+
+```{r}
+
+# Define the stats
+AB<-565
+H<-156
+BB<-65
+HBP<-3
+SF<-7
+
+# Calculate On Base Percentage (OBP)
+OBP <- (H + BB + HBP) / (AB + BB + HBP + SF)
+
+# Print result rounded to 3 decimals
+cat("On Base Percentage (OBP) =", round(OBP, 3), "\n")
+
+
+```
+### Often you will want to test whether something is less than, greater than or equal to something.
+
+```{r}
+3 == 8# Does 3 equals 8?
+```
+```{r}
+3 != 8# Is 3 different from 8?
+```
+
+```{r}
+3>4
+```
+
+###The logical operators are & for logical AND, | for logical OR, and ! for NOT. These are some examples:
+```{r}
+# Logical Disjunction (or)
+
+FALSE | FALSE # False OR False
+```
+```{r}
+# Logical Conjunction (and)
+TRUE & FALSE #True AND False
+```
+
+```{r}
+# Negation
+! FALSE # Not False
+```
+```{r}
+# Combination of statements
+2 < 3 | 1 == 5 # 2<3 is True, 1==5 is False, True OR False is True
+```
+
+# Assigning Values to Variables
+
+In R, you create a variable and assign it a value using <- as follows
+```{r}
+Total_Bases <- 6 + 5
+Total_Bases*3
+```
+To see the variables that are currently defined, use ls (as in “list”)
+
+```{r}
+ls()
+```
